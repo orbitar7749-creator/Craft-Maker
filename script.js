@@ -1,9 +1,15 @@
-const STATE = {
-  cols: 32, rows: 32, zoom: 1, tool: 'pencil', color: '#2d6a4f',
-  orientation: 'portrait', gridLocked: false, layers: [],
-  activeLayerIndex: 0, undoStack: [], redoStack: [],
-  savedColors: new Array(24).fill(null), isDrawing: false, hue: 150
-};
+    const STATE = {
+        cols: 32, 
+        rows: 32, 
+        tool: 'pencil', 
+        color: '#2d6a4f',
+        savedColors: new Array(24).fill(null),
+        isDrawing: false, 
+        hue: 150,
+        layers: [], 
+        activeLayerIndex: 0
+    };
+
 
 const mainCanvas = document.getElementById('mainCanvas');
 const gridCanvas = document.getElementById('gridCanvas');
