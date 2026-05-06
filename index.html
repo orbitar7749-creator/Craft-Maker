@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelCraft — Minecraft Papercraft Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon"><span></span><span></span><span></span><span></span></div>
+    PixelCraft
+  </div>
+  <div class="header-center">
+    <div class="undo-redo">
+      <button class="header-btn" id="undoBtn" title="Undo (Ctrl+Z)">↩ Undo</button>
+      <button class="header-btn" id="redoBtn" title="Redo (Ctrl+Y)">↪ Redo</button>
+    </div>
+    <button class="header-btn" id="previewBtn">👁 A4 Preview</button>
+    <button class="header-btn primary" id="exportBtn">⬇ Export PNG</button>
+  </div>
+</header>
+
+<div class="app-body">
+  <div class="left-panel">
+    <div class="panel-section">
+      <div class="panel-title">Grid Settings</div>
+      <div class="setting-row">
+        <span class="setting-label">Columns</span>
+        <input type="number" class="setting-input" id="gridCols" value="32" min="1" max="256">
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Rows</span>
+        <input type="number" class="setting-input" id="gridRows" value="32" min="1" max="256">
+      </div>
+      <button class="action-btn" id="applyGridBtn" style="margin-bottom:10px;">↺ Apply Grid Size</button>
+      <div class="toggle-row">
+        <span class="setting-label">Lock Grid</span>
+        <div class="toggle" id="lockToggle"></div>
+      </div>
+      <div class="panel-title" style="margin-top:8px;">Orientation</div>
+      <div class="orientation-btns">
+        <button class="orient-btn active" id="portraitBtn">Portrait</button>
+        <button class="orient-btn" id="landscapeBtn">Landscape</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Tools</div>
+      <div class="tools-grid">
+        <button class="tool-btn active" data-tool="pencil"><span class="tool-icon">✏️</span>Pencil</button>
+        <button class="tool-btn" data-tool="eraser"><span class="tool-icon">🧹</span>Eraser</button>
+        <button class="tool-btn" data-tool="fill"><span class="tool-icon">🪣</span>Fill</button>
+        <button class="tool-btn" data-tool="picker"><span class="tool-icon">💉</span>Picker</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Zoom</div>
+      <div class="zoom-row">
+        <button class="zoom-btn" id="zoomOut">−</button>
+        <div class="zoom-display" id="zoomDisplay">100%</div>
+        <button class="zoom-btn" id="zoomIn">+</button>
+        <button class="zoom-btn" id="zoomReset" title="Reset zoom">⌂</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Color</div>
+      <div class="color-preview-row">
+        <div class="current-color-box" id="currentColorBox" style="background:#2d6a4f;" onclick="document.getElementById('nativeColorPicker').click()"></div>
+        <input type="color" id="nativeColorPicker" style="display:none" value="#2d6a4f">
+        <input type="text" class="color-hex-input" id="hexInput" value="#2d6a4f" maxlength="7">
+      </div>
+      <div class="palette-tabs">
+        <button class="palette-tab active" data-tab="wheel">Wheel</button>
+        <button class="palette-tab" data-tab="gradient">Gradient</button>
+        <button class="palette-tab" data-tab="swatches">Swatches</button>
+      </div>
+      <div class="palette-panel active" id="tab-wheel">
+        <canvas id="colorWheelCanvas" width="200" height="160"></canvas>
+        <input type="range" class="hue-slider" id="hueSlider" min="0" max="360" value="150">
+      </div>
+      <div class="palette-panel" id="tab-gradient">
+        <canvas id="gradientCanvas" class="gradient-preview" width="220" height="32"></canvas>
+        <div class="setting-row">
+          <span class="setting-label">From</span>
+          <input type="color" id="gradFrom" value="#52b788">
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">To</span>
+          <input type="color" id="gradTo" value="#ffffff">
+        </div>
+      </div>
+      <div class="palette-panel" id="tab-swatches">
+        <div class="swatches-grid" id="swatchesGrid"></div>
+      </div>
+      <div class="panel-title" style="margin-top:12px;">Saved Colors</div>
+      <div class="saved-colors-grid" id="savedColorsGrid"></div>
+      <button class="add-color-btn" id="addColorBtn">+ Save Current Color</button>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Import / Export</div>
+      <button class="action-btn" id="importPngBtn">📂 Import PNG</button>
+      <button class="action-btn export" id="exportPngBtn">💾 Export PNG</button>
+    </div>
+  </div>
+
+  <div class="canvas-area" id="canvasArea">
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <canvas id="mainCanvas"></canvas>
+      <canvas id="gridCanvas"></canvas>
+    </div>
+    <div class="canvas-info" id="canvasInfo">32 × 32 · Portrait · 100%</div>
+  </div>
+
+  <div class="right-panel">
+    <div class="right-panel-header"><div class="panel-title" style="margin:0">Layers</div></div>
+    <div class="layers-list" id="layersList"></div>
+    <div class="layers-footer">
+      <button class="layers-footer-btn" id="addLayerBtn">+ Add</button>
+      <button class="layers-footer-btn" id="dupLayerBtn">⧉ Dup</button>
+      <button class="layers-footer-btn del" id="delLayerBtn">🗑 Del</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="importFileInput" accept="image/png,image/gif">
+
+<div class="modal-overlay" id="gridModal">
+  <div class="modal">
+    <h2>New Canvas</h2>
+    <div class="modal-grid">
+      <div class="modal-field"><label>Columns</label><input type="number" id="modalCols" value="32"></div>
+      <div class="modal-field"><label>Rows</label><input type="number" id="modalRows" value="32"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="gridModalCancel">Cancel</button>
+      <button class="modal-btn confirm" id="gridModalConfirm">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h2>Import PNG</h2>
+    <div class="import-options">
+      <div class="import-option selected" id="importAuto" onclick="selectImportMode('auto')">🎯 Auto-fill grid</div>
+      <div class="import-option" id="importManual" onclick="selectImportMode('manual')">✋ Place manually</div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="importModalCancel">Cancel</button>
+      <button class="modal-btn confirm" id="importModalConfirm">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="previewModal">
+  <div class="modal preview-modal">
+    <h2>A4 Preview</h2>
+    <canvas id="previewCanvas"></canvas>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="previewModalClose">Close</button>
+      <button class="modal-btn confirm" id="previewExportBtn">Export PNG</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
